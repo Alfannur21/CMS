@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { CompleteLightInvitationPayload, OverlayElement } from '../types';
-import { Sparkles, Calendar, Clock, MapPin, Heart } from 'lucide-react';
 
 interface OverlayRendererProps {
   data: CompleteLightInvitationPayload;
@@ -11,7 +10,6 @@ export const OverlayRenderer: React.FC<OverlayRendererProps> = ({ data }) => {
   const overlayConfig = template.overlay_config;
   const isPendingPayment = invitation.status_payment === 'pending';
 
-  // Countdown State
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
@@ -50,28 +48,28 @@ export const OverlayRenderer: React.FC<OverlayRendererProps> = ({ data }) => {
         return couple.groom_name;
       case 'quote_ar_rum':
         return (
-          <p className="max-w-[320px] text-center italic leading-relaxed px-4 text-coklat-200 text-[10px]">
+          <p className="max-w-[320px] text-center italic leading-relaxed px-4 text-gray-600 text-[11px]">
             {couple.quote_text}
           </p>
         );
       case 'countdown_component':
         return (
-          <div className="grid grid-cols-4 gap-2 w-[310px] glass-card-gold p-3 rounded-2xl border border-gold-500/40 text-center shadow-gold-glow">
+          <div className="grid grid-cols-4 gap-2 w-[310px] bg-gray-50 p-3.5 rounded-2xl border border-gray-200 text-center shadow-minimal">
             <div>
-              <span className="block text-xl font-bold font-serif text-gold-300">{timeLeft.days}</span>
-              <span className="text-[9px] uppercase text-coklat-300">Hari</span>
+              <span className="block text-xl font-semibold font-serif text-gray-900">{timeLeft.days}</span>
+              <span className="text-[9px] uppercase text-gray-500 font-medium tracking-wider">Hari</span>
             </div>
             <div>
-              <span className="block text-xl font-bold font-serif text-gold-300">{timeLeft.hours}</span>
-              <span className="text-[9px] uppercase text-coklat-300">Jam</span>
+              <span className="block text-xl font-semibold font-serif text-gray-900">{timeLeft.hours}</span>
+              <span className="text-[9px] uppercase text-gray-500 font-medium tracking-wider">Jam</span>
             </div>
             <div>
-              <span className="block text-xl font-bold font-serif text-gold-300">{timeLeft.minutes}</span>
-              <span className="text-[9px] uppercase text-coklat-300">Menit</span>
+              <span className="block text-xl font-semibold font-serif text-gray-900">{timeLeft.minutes}</span>
+              <span className="text-[9px] uppercase text-gray-500 font-medium tracking-wider">Menit</span>
             </div>
             <div>
-              <span className="block text-xl font-bold font-serif text-gold-300">{timeLeft.seconds}</span>
-              <span className="text-[9px] uppercase text-coklat-300">Detik</span>
+              <span className="block text-xl font-semibold font-serif text-gray-900">{timeLeft.seconds}</span>
+              <span className="text-[9px] uppercase text-gray-500 font-medium tracking-wider">Detik</span>
             </div>
           </div>
         );
@@ -81,16 +79,16 @@ export const OverlayRenderer: React.FC<OverlayRendererProps> = ({ data }) => {
   };
 
   return (
-    <div className="relative w-full max-w-[390px] mx-auto min-h-[844px] bg-coklat-950 overflow-hidden shadow-luxury border border-gold-500/30 rounded-3xl">
+    <div className="relative w-full max-w-[390px] mx-auto min-h-[844px] bg-white overflow-hidden shadow-minimal-lg border border-gray-200 rounded-3xl">
       
-      {/* 1. FIGMA STATIC BASE IMAGE LAYER */}
+      {/* 1. BASE IMAGE LAYER */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         <img
           src={template.base_image_url}
           alt={template.name}
-          className="w-full h-full object-cover filter contrast-[1.05] brightness-90 opacity-40"
+          className="w-full h-full object-cover filter brightness-[0.97] opacity-15"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-coklat-950/80 via-transparent to-coklat-950/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-white/70 to-white" />
       </div>
 
       {/* 2. DYNAMIC PERCENTAGE OVERLAY LAYERS */}
@@ -105,7 +103,7 @@ export const OverlayRenderer: React.FC<OverlayRendererProps> = ({ data }) => {
               transform: elem.transform || 'none',
               fontFamily: elem.font_family || 'inherit',
               fontSize: elem.font_size || 'inherit',
-              color: elem.color || 'inherit',
+              color: elem.color || '#111827',
             }}
             className="whitespace-nowrap transition-all duration-300"
           >
@@ -116,12 +114,12 @@ export const OverlayRenderer: React.FC<OverlayRendererProps> = ({ data }) => {
 
       {/* 3. WATERMARK STATE MACHINE OVERLAY */}
       {isPendingPayment && (
-        <div className="absolute inset-0 z-40 pointer-events-none flex flex-col justify-between p-4 bg-rose-950/20 backdrop-blur-[1px] border-4 border-dashed border-rose-500/50">
-          <div className="bg-rose-600 text-white text-center py-1.5 px-3 text-[11px] font-bold uppercase tracking-widest shadow-lg rotate-[-2deg]">
-            ⚠️ DEMO / UNPAID WATERMARK - UNDANGANQU SAAS
+        <div className="absolute inset-0 z-40 pointer-events-none flex flex-col justify-between p-4 bg-gray-900/5 backdrop-blur-[1px] border-2 border-dashed border-gray-400">
+          <div className="bg-gray-900 text-white text-center py-1.5 px-3 text-[10px] font-semibold uppercase tracking-widest rounded-md shadow-minimal">
+            DEMO / UNPAID WATERMARK - UNDANGANQU
           </div>
-          <div className="bg-rose-900/90 text-rose-200 text-center py-2 px-4 text-[10px] font-medium rounded-xl border border-rose-500/40">
-            Selesaikan pembayaran via Midtrans untuk menghapus watermark ini secara otomatis.
+          <div className="bg-white/95 text-gray-700 text-center py-2 px-3 text-[10px] font-medium rounded-xl border border-gray-300 shadow-minimal">
+            Selesaikan pembayaran untuk menghapus watermark.
           </div>
         </div>
       )}

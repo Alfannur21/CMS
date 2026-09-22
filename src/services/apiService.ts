@@ -2,7 +2,7 @@ import { CompleteLightInvitationPayload, GuestInteraction, OptimizedMedia, Templ
 
 const BASE_TEMPLATE: Template = {
   id: 101,
-  name: 'Figma Premium Coklat-Ai Base Overlay',
+  name: 'Minimal White Base Overlay',
   base_image_url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1200',
   viewport_dimensions: '390x844',
   overlay_config: {
@@ -14,9 +14,9 @@ const BASE_TEMPLATE: Template = {
         top: '6%',
         left: '50%',
         transform: 'translateX(-50%)',
-        font_family: 'Playfair Display',
-        font_size: '14px',
-        color: '#d4af37',
+        font_family: 'Plus Jakarta Sans',
+        font_size: '11px',
+        color: '#6b7280',
         content_key: 'header_text',
       },
       {
@@ -27,7 +27,7 @@ const BASE_TEMPLATE: Template = {
         transform: 'translateX(-50%)',
         font_family: 'Playfair Display',
         font_size: '26px',
-        color: '#f5be38',
+        color: '#111827',
         content_key: 'bride_name',
       },
       {
@@ -38,7 +38,7 @@ const BASE_TEMPLATE: Template = {
         transform: 'translateX(-50%)',
         font_family: 'Great Vibes',
         font_size: '32px',
-        color: '#d4af37',
+        color: '#374151',
         content_key: 'ampersand',
       },
       {
@@ -49,7 +49,7 @@ const BASE_TEMPLATE: Template = {
         transform: 'translateX(-50%)',
         font_family: 'Playfair Display',
         font_size: '26px',
-        color: '#f5be38',
+        color: '#111827',
         content_key: 'groom_name',
       },
       {
@@ -60,7 +60,7 @@ const BASE_TEMPLATE: Template = {
         transform: 'translateX(-50%)',
         font_family: 'Plus Jakarta Sans',
         font_size: '11px',
-        color: '#e5c4b0',
+        color: '#4b5563',
         content_key: 'quote_ar_rum',
       },
       {
@@ -80,7 +80,7 @@ const INITIAL_INVITATION: Invitation = {
   slug: 'elyana-syahril',
   template_id: 101,
   user_id: 'usr-client-001',
-  status_payment: 'pending', // Initialized as pending to showcase the Watermark feature
+  status_payment: 'pending', // Pending status displays watermark
   created_at: new Date().toISOString(),
 };
 
@@ -183,7 +183,7 @@ const INITIAL_MEDIA: OptimizedMedia[] = [
   }
 ];
 
-const STORAGE_KEY = 'cms_light_invitation_v2';
+const STORAGE_KEY = 'cms_light_invitation_minimal_white';
 
 export class ApiService {
   private static getStoredPayload(): CompleteLightInvitationPayload {
@@ -210,12 +210,10 @@ export class ApiService {
     window.dispatchEvent(new CustomEvent('light_invitation_updated', { detail: payload }));
   }
 
-  // REST API: GET /v1/invitation/{slug}
   public static async getInvitationBySlug(slug: string): Promise<CompleteLightInvitationPayload> {
     return this.getStoredPayload();
   }
 
-  // REST API: POST /v1/interact/rsvp
   public static async submitRSVP(data: {
     guest_id?: string;
     guest_name: string;
@@ -234,7 +232,6 @@ export class ApiService {
     return newRSVP;
   }
 
-  // REST API: POST /v1/media/upload (Auto WebP Conversion & 1200px Capping Simulator)
   public static async uploadAndOptimizeMedia(fileName: string): Promise<OptimizedMedia> {
     const payload = this.getStoredPayload();
     const baseName = fileName.replace(/\.[^/.]+$/, "");
@@ -243,7 +240,7 @@ export class ApiService {
       webp_url: 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&q=80&w=1200',
       width: 1200,
       height: 800,
-      file_size_kb: 142, // Under 500KB requirement
+      file_size_kb: 142,
       srcset: `${baseName}-400.webp 400w, ${baseName}-800.webp 800w, ${baseName}-1200.webp 1200w`,
     };
 
@@ -252,7 +249,6 @@ export class ApiService {
     return optimized;
   }
 
-  // REST API: POST /v1/payments/webhook (Midtrans Webhook & Signature Verification Simulator)
   public static async processPaymentWebhook(invitationId: string, status: 'settlement' | 'pending' | 'expired'): Promise<{
     success: boolean;
     status_payment: string;
@@ -266,22 +262,20 @@ export class ApiService {
       success: true,
       status_payment: status,
       message: status === 'settlement' 
-        ? 'Pembayaran berhasil dikonfirmasi! Watermark demo otomatis dihapus dan fitur diaktifkan.'
+        ? 'Pembayaran berhasil dikonfirmasi. Watermark demo telah dihapus.'
         : 'Status pembayaran diubah ke Pending (Watermark Demo Aktif).',
     };
   }
 
-  // Generate Guest WhatsApp Link
   public static generateGuestLink(slug: string, guestName: string): { url: string; waMessage: string } {
     const baseUrl = window.location.origin;
     const cleanGuest = encodeURIComponent(guestName.trim());
     const url = `${baseUrl}/?slug=${slug}&to=${cleanGuest}`;
-    const waMessage = `Bismillah-ir-Rahman-ir-Rahim\n\nYth. *${guestName}*,\n\nTanpa mengurangi rasa hormat, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri acara pernikahan kami:\n\n*Elyana & Syahril*\n\nInformasi lengkap acara & RSVP dapat diakses melalui tautan berikut:\n${url}\n\nTerima kasih.`;
+    const waMessage = `Yth. *${guestName}*,\n\nTanpa mengurangi rasa hormat, kami mengundang Bapak/Ibu/Saudara/i untuk menghadiri acara pernikahan kami:\n\n*Elyana & Syahril*\n\nInformasi acara & konfirmasi RSVP:\n${url}\n\nTerima kasih.`;
     
     return { url, waMessage };
   }
 
-  // Update Data Payload from Client Dashboard
   public static async updatePayload(updated: Partial<CompleteLightInvitationPayload>): Promise<CompleteLightInvitationPayload> {
     const current = this.getStoredPayload();
     const merged: CompleteLightInvitationPayload = {
