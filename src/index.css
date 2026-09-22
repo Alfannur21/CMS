@@ -10,16 +10,24 @@
 }
 
 @layer utilities {
+  .section-padding {
+    @apply py-12 md:py-16 px-6;
+  }
+
+  .btn-primary {
+    @apply h-12 px-6 text-sm font-semibold rounded-full bg-gray-900 text-white hover:bg-gray-800 transition-all duration-200 flex items-center justify-center gap-2 tracking-wide shadow-minimal;
+  }
+
+  .btn-secondary {
+    @apply h-12 px-6 text-sm font-semibold rounded-full bg-white border border-gray-300 text-gray-800 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 flex items-center justify-center gap-2;
+  }
+
   .minimal-card {
-    @apply bg-white border border-gray-200 shadow-minimal rounded-2xl;
+    @apply bg-gray-50/60 border border-gray-200/80 rounded-2xl shadow-minimal p-6;
   }
 
   .minimal-card-hover {
-    @apply bg-white border border-gray-200 shadow-minimal hover:shadow-minimal-md hover:border-gray-300 transition-all duration-200 rounded-2xl;
-  }
-
-  .minimal-badge {
-    @apply px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200;
+    @apply bg-gray-50/60 border border-gray-200/80 shadow-minimal hover:shadow-minimal-md hover:border-gray-300 transition-all duration-200 rounded-2xl p-6;
   }
 }
 
