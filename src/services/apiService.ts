@@ -2,7 +2,7 @@ import { CompleteLightInvitationPayload, GuestInteraction, OptimizedMedia, Templ
 
 const BASE_TEMPLATE: Template = {
   id: 101,
-  name: 'Minimal White Base Overlay',
+  name: 'Minimal White Base Overlay with Custom Media Loop',
   base_image_url: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=1200',
   viewport_dimensions: '390x844',
   overlay_config: {
@@ -70,6 +70,20 @@ const BASE_TEMPLATE: Template = {
         left: '50%',
         transform: 'translateX(-50%)',
         content_key: 'countdown_component',
+      },
+      // CUSTOM ANIMATION OVERLAY ELEMENT SAMPLE (.webp / .gif / .mp4)
+      {
+        id: 'animation_overlay_sample',
+        type: 'media_overlay',
+        media_type: 'gif',
+        media_url: 'https://media.giphy.com/media/l0HlHJGHe3yAMhdQY/giphy.gif',
+        top: '2%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '350px',
+        height: 'auto',
+        opacity: 0.15,
+        blend_mode: 'multiply',
       }
     ],
   },
@@ -80,7 +94,7 @@ const INITIAL_INVITATION: Invitation = {
   slug: 'elyana-syahril',
   template_id: 101,
   user_id: 'usr-client-001',
-  status_payment: 'pending', // Pending status displays watermark
+  status_payment: 'pending',
   created_at: new Date().toISOString(),
 };
 
@@ -183,7 +197,7 @@ const INITIAL_MEDIA: OptimizedMedia[] = [
   }
 ];
 
-const STORAGE_KEY = 'cms_light_invitation_minimal_white';
+const STORAGE_KEY = 'cms_light_invitation_media_overlay_v3';
 
 export class ApiService {
   private static getStoredPayload(): CompleteLightInvitationPayload {
@@ -282,6 +296,7 @@ export class ApiService {
       ...current,
       invitation: { ...current.invitation, ...updated.invitation },
       couple: { ...current.couple, ...updated.couple },
+      template: { ...current.template, ...updated.template },
       events: updated.events || current.events,
       stories: updated.stories || current.stories,
       gifts: updated.gifts || current.gifts,

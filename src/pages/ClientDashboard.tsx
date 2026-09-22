@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { CompleteLightInvitationPayload, Couple, EventDetail, LoveStoryItem, DigitalGiftSlot } from '../types';
+import { CompleteLightInvitationPayload, Couple, EventDetail, LoveStoryItem, DigitalGiftSlot, OverlayElement, MediaOverlayType, MixBlendMode } from '../types';
 import { ApiService } from '../services/apiService';
 import { PublicInvitation } from './PublicInvitation';
 import { 
   Users, Calendar, Heart, Gift, MessageSquare, CreditCard, 
-  Share2, Eye, CheckCircle2, Copy, ExternalLink, Plus, Trash2, Layout, Upload, Image as ImageIcon
+  Share2, Eye, CheckCircle2, Copy, ExternalLink, Plus, Trash2, Layout, Upload, Image as ImageIcon, Film
 } from 'lucide-react';
 
 export const ClientDashboard: React.FC = () => {
   const [payload, setPayload] = useState<CompleteLightInvitationPayload | null>(null);
-  const [activeTab, setActiveTab] = useState<'couple' | 'events' | 'stories' | 'gifts' | 'media' | 'generator' | 'analytics' | 'payment'>('couple');
+  const [activeTab, setActiveTab] = useState<'couple' | 'events' | 'stories' | 'gifts' | 'overlay_media' | 'media' | 'generator' | 'analytics' | 'payment'>('couple');
   const [previewDevice, setPreviewDevice] = useState<'mobile' | 'desktop'>('mobile');
 
   const [guestNameInput, setGuestNameInput] = useState('Budi Santoso');
@@ -100,6 +100,62 @@ export const ClientDashboard: React.FC = () => {
     ApiService.updatePayload(newPayload);
   };
 
+  // MEDIA OVERLAY EDITOR LOGIC (.gif, .webp, .mp4)
+  const handleOverlayMediaChange = (id: string, field: keyof OverlayElement, value: any) => {
+    if (!payload) return;
+    const updatedElements = payload.template.overlay_config.elements.map((elem) => {
+      if (elem.id === id) {
+        return { ...elem, [field]: value };
+      }
+      return elem;
+    });
+
+    const newTemplate = {
+      ...payload.template,
+      overlay_config: { ...payload.template.overlay_config, elements: updatedElements },
+    };
+    const newPayload = { ...payload, template: newTemplate };
+    setPayload(newPayload);
+    ApiService.updatePayload(newPayload);
+  };
+
+  const handleAddMediaOverlay = () => {
+    if (!payload) return;
+    const newMediaElement: OverlayElement = {
+      id: 'media_overlay_' + Math.random().toString(36).substring(2, 7),
+      type: 'media_overlay',
+      media_type: 'gif',
+      media_url: 'https://media.giphy.com/media/l0HlHJGHe3yAMhdQY/giphy.gif',
+      top: '10%',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      width: '300px',
+      opacity: 0.2,
+      blend_mode: 'multiply',
+    };
+
+    const newElements = [...payload.template.overlay_config.elements, newMediaElement];
+    const newTemplate = {
+      ...payload.template,
+      overlay_config: { ...payload.template.overlay_config, elements: newElements },
+    };
+    const newPayload = { ...payload, template: newTemplate };
+    setPayload(newPayload);
+    ApiService.updatePayload(newPayload);
+  };
+
+  const handleRemoveMediaOverlay = (id: string) => {
+    if (!payload) return;
+    const newElements = payload.template.overlay_config.elements.filter((e) => e.id !== id);
+    const newTemplate = {
+      ...payload.template,
+      overlay_config: { ...payload.template.overlay_config, elements: newElements },
+    };
+    const newPayload = { ...payload, template: newTemplate };
+    setPayload(newPayload);
+    ApiService.updatePayload(newPayload);
+  };
+
   const handleUploadMedia = async () => {
     if (!uploadFileName.trim()) return;
     setIsUploading(true);
@@ -148,6 +204,7 @@ export const ClientDashboard: React.FC = () => {
   const isWatermarkActive = payload.invitation.status_payment === 'pending';
   const totalRSVP = payload.interactions.length;
   const attendingCount = payload.interactions.filter((i) => i.attendance_status === 'Datang').length;
+  const mediaOverlayElements = payload.template.overlay_config.elements.filter((e) => e.type === 'media_overlay');
 
   return (
     <div className="min-h-screen bg-white text-gray-900 flex flex-col font-sans">
@@ -186,7 +243,7 @@ export const ClientDashboard: React.FC = () => {
               : 'bg-emerald-50 border-emerald-200 text-emerald-800'
           }`}>
             <CheckCircle2 className="w-3.5 h-3.5" />
-            {isWatermarkActive ? 'Status: Pending (Watermark Demo Aktif)' : 'Status: Settlement (Watermark Off)'}
+            {isWatermarkActive ? 'Status: Pending (Watermark Demo)' : 'Status: Settlement (Watermark Off)'}
           </span>
         </div>
       </header>
@@ -204,6 +261,7 @@ export const ClientDashboard: React.FC = () => {
               { id: 'events', label: 'Acara', icon: Calendar },
               { id: 'stories', label: 'Love Story', icon: Heart },
               { id: 'gifts', label: 'Love Gift', icon: Gift },
+              { id: 'overlay_media', label: 'Media Overlay (.gif/.webp/.mp4)', icon: Film },
               { id: 'media', label: 'Media Pipeline', icon: ImageIcon },
               { id: 'generator', label: 'Link WA Generator', icon: Share2 },
               { id: 'analytics', label: 'RSVP Tracker', icon: MessageSquare },
@@ -396,7 +454,121 @@ export const ClientDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 5: MEDIA PIPELINE */}
+          {/* TAB 5: MEDIA OVERLAY ENGINE (.gif, .webp, .mp4) */}
+          {activeTab === 'overlay_media' && (
+            <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-minimal space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-1.5">
+                    <Film className="w-4 h-4 text-gray-700" />
+                    Media Overlay Manager (.gif / .webp / .mp4)
+                  </h2>
+                  <p className="text-[11px] text-gray-500">Atur animasi partikel, stiker .gif/.webp, atau video loop .mp4 sebagai lapisan overlay.</p>
+                </div>
+                <button
+                  onClick={handleAddMediaOverlay}
+                  className="px-3 py-1.5 rounded-xl bg-gray-900 text-white text-xs font-medium flex items-center gap-1 hover:bg-gray-800 transition-colors"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Tambah Overlay
+                </button>
+              </div>
+
+              {mediaOverlayElements.length === 0 ? (
+                <p className="text-xs text-gray-500 italic p-4 bg-gray-50 rounded-xl text-center">Belum ada animasi overlay. Klik "Tambah Overlay" untuk memasukkan .gif, .webp, atau .mp4.</p>
+              ) : (
+                <div className="space-y-4">
+                  {mediaOverlayElements.map((elem, idx) => (
+                    <div key={elem.id} className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-gray-900">Media Overlay #{idx + 1}</span>
+                        <button
+                          onClick={() => handleRemoveMediaOverlay(elem.id)}
+                          className="text-red-600 hover:text-red-700 p-1"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[10px] text-gray-600 mb-1">Format Media</label>
+                          <select
+                            value={elem.media_type || 'gif'}
+                            onChange={(e) => handleOverlayMediaChange(elem.id, 'media_type', e.target.value as MediaOverlayType)}
+                            className="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs text-gray-900 focus:outline-none"
+                          >
+                            <option value="gif">GIF (.gif)</option>
+                            <option value="webp">WebP Animasi (.webp)</option>
+                            <option value="mp4">Video Loop (.mp4)</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] text-gray-600 mb-1">Mode Blend CSS</label>
+                          <select
+                            value={elem.blend_mode || 'normal'}
+                            onChange={(e) => handleOverlayMediaChange(elem.id, 'blend_mode', e.target.value as MixBlendMode)}
+                            className="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs text-gray-900 focus:outline-none"
+                          >
+                            <option value="normal">Normal</option>
+                            <option value="multiply">Multiply (Sembunyikan Putih)</option>
+                            <option value="screen">Screen (Sembunyikan Hitam)</option>
+                            <option value="overlay">Overlay</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] text-gray-600 mb-1">URL File Animasi (.gif / .webp / .mp4)</label>
+                        <input
+                          type="text"
+                          value={elem.media_url || ''}
+                          onChange={(e) => handleOverlayMediaChange(elem.id, 'media_url', e.target.value)}
+                          placeholder="Masukkan URL file .gif, .webp, atau .mp4"
+                          className="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs text-gray-900 font-mono focus:outline-none"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <label className="block text-[10px] text-gray-600 mb-1">Posisi Top (%)</label>
+                          <input
+                            type="text"
+                            value={elem.top || '0%'}
+                            onChange={(e) => handleOverlayMediaChange(elem.id, 'top', e.target.value)}
+                            className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1 text-xs text-gray-900"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-gray-600 mb-1">Lebar (px / %)</label>
+                          <input
+                            type="text"
+                            value={elem.width || '100%'}
+                            onChange={(e) => handleOverlayMediaChange(elem.id, 'width', e.target.value)}
+                            className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1 text-xs text-gray-900"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-gray-600 mb-1">Opacity (0.1-1.0)</label>
+                          <input
+                            type="number"
+                            step="0.05"
+                            min="0"
+                            max="1"
+                            value={elem.opacity !== undefined ? elem.opacity : 1}
+                            onChange={(e) => handleOverlayMediaChange(elem.id, 'opacity', parseFloat(e.target.value))}
+                            className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1 text-xs text-gray-900"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 6: MEDIA PIPELINE */}
           {activeTab === 'media' && (
             <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-minimal space-y-4">
               <h2 className="text-sm font-semibold text-gray-900">Media Pipeline (.WebP Auto-Convert)</h2>
@@ -437,7 +609,7 @@ export const ClientDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 6: LINK WA GENERATOR */}
+          {/* TAB 7: LINK WA GENERATOR */}
           {activeTab === 'generator' && (
             <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-minimal space-y-4">
               <h2 className="text-sm font-semibold text-gray-900">Link Guest Generator (URL & WA Draft)</h2>
@@ -477,7 +649,7 @@ export const ClientDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 7: RSVP TRACKER */}
+          {/* TAB 8: RSVP TRACKER */}
           {activeTab === 'analytics' && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
@@ -493,7 +665,7 @@ export const ClientDashboard: React.FC = () => {
             </div>
           )}
 
-          {/* TAB 8: MIDTRANS WEBHOOK SIMULATOR */}
+          {/* TAB 9: MIDTRANS WEBHOOK SIMULATOR */}
           {activeTab === 'payment' && (
             <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-minimal space-y-4">
               <div className="flex items-center justify-between">

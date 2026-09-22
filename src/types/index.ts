@@ -1,15 +1,26 @@
 export type PaymentStatus = 'pending' | 'settlement' | 'expired';
 
+export type MediaOverlayType = 'gif' | 'webp' | 'mp4';
+export type MixBlendMode = 'normal' | 'screen' | 'multiply' | 'overlay';
+
 export interface OverlayElement {
   id: string;
-  type: 'text' | 'component' | 'image';
+  type: 'text' | 'component' | 'image' | 'media_overlay';
   top: string; // e.g. "15.5%"
   left: string; // e.g. "50%"
   transform?: string; // e.g. "translateX(-50%)"
   font_family?: string;
   font_size?: string;
   color?: string;
-  content_key?: string; // e.g. "bride_name", "countdown", "event_date", "quote"
+  content_key?: string; // e.g. "bride_name", "countdown", "event_date"
+  
+  // Custom Media Overlay (.gif, .webp, .mp4) attributes
+  media_type?: MediaOverlayType;
+  media_url?: string;
+  width?: string;
+  height?: string;
+  opacity?: number;
+  blend_mode?: MixBlendMode;
 }
 
 export interface OverlayConfig {
@@ -45,15 +56,15 @@ export interface Couple {
   groom_ig?: string;
   avatar_bride?: string;
   avatar_groom?: string;
-  quote_text?: string; // QS Ar-Rum: 21
+  quote_text?: string;
 }
 
 export interface EventDetail {
   id: string;
   invitation_id: string;
   event_type: 'Akad' | 'Resepsi';
-  start_time: string; // e.g. 2024-12-31T08:00:00
-  end_time: string; // e.g. 2024-12-31T10:00:00
+  start_time: string;
+  end_time: string;
   location_name: string;
   address: string;
   google_maps_link: string;
@@ -75,14 +86,6 @@ export interface DigitalGiftSlot {
   account_holder?: string;
   address?: string;
   recipient_name?: string;
-}
-
-export interface Guest {
-  id: string;
-  invitation_id: string;
-  guest_name: string;
-  unique_token: string;
-  slug_access: string;
 }
 
 export interface GuestInteraction {

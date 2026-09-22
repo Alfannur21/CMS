@@ -37,6 +37,46 @@ export const OverlayRenderer: React.FC<OverlayRendererProps> = ({ data }) => {
   }, [events]);
 
   const renderElementContent = (elem: OverlayElement) => {
+    // Custom Media Overlay Element (.gif, .webp, .mp4)
+    if (elem.type === 'media_overlay') {
+      const opacityVal = elem.opacity !== undefined ? elem.opacity : 1;
+      const blendModeVal = elem.blend_mode || 'normal';
+
+      if (elem.media_type === 'mp4') {
+        return (
+          <video
+            src={elem.media_url}
+            autoPlay
+            loop
+            muted
+            playsInline
+            style={{
+              width: elem.width || '100%',
+              height: elem.height || 'auto',
+              opacity: opacityVal,
+              mixBlendMode: blendModeVal,
+            }}
+            className="pointer-events-none rounded-xl"
+          />
+        );
+      }
+
+      // .gif or animated .webp
+      return (
+        <img
+          src={elem.media_url}
+          alt="Animation Overlay Loop"
+          style={{
+            width: elem.width || '100%',
+            height: elem.height || 'auto',
+            opacity: opacityVal,
+            mixBlendMode: blendModeVal,
+          }}
+          className="pointer-events-none rounded-xl object-cover"
+        />
+      );
+    }
+
     switch (elem.content_key) {
       case 'header_text':
         return 'The Wedding Invitation';
